@@ -22,12 +22,14 @@
 ;;; Commentary:
 ;; Tested on Emacs 22
 
-
 ;;; you need these commands:
 ;; 'perl', 'perldoc', 'zcat'
 ;;
 ;; to check PATH,
 ;; M-x getenv PATH
+
+;;; Commands:
+;; M-x cpan
 
 
 
@@ -98,8 +100,10 @@
 
 (defun cpan:modules ()
   (or cpan:modules-cache
+      (message "getting modules ...")
       (let* ((s (shell-command-to-string (cpan:modules-command)))
              (los (cpan:get-modules-from-string s)))
+        (message "done.")
         (flet ((success? (los) (> (length los) 10)))
           (when (success? los)
             (setq cpan:modules-cache los))))))
@@ -116,7 +120,7 @@
                    (progn (goto-char (point-min))
                           (re-search-forward "Database was generated" nil t)
                           (point-at-eol)))
-    (cpan:collect-matches-with-progress-reporter (concat "^" cpan:package-re))))
+    (cpan:collect-matches (concat "^" cpan:package-re))))
 
 ;;;;  anything-c-source-cpan-installed-modules
 (defvar anything-c-source-cpan-installed-modules
@@ -241,7 +245,7 @@
   (save-excursion
     (let* ((lines (count-lines (point-min) (point-max)))
            (line-count 0)
-           (progress-reporter (make-progress-reporter "processing " 0 lines nil 5 1)))
+           (progress-reporter (make-progress-reporter "processing " 0 lines nil 1 2)))
       (loop initially (goto-char point-min)
             while (re-search-forward re point-max t)
             collect (prog1 (funcall match-string-fn count)
