@@ -100,7 +100,6 @@
 
 (defun cpan:modules ()
   (or cpan:modules-cache
-      (message "getting modules ...")
       (let* ((s (shell-command-to-string (cpan:modules-command)))
              (los (cpan:get-modules-from-string s)))
         (message "done.")
@@ -114,6 +113,7 @@
         cpan:installed-modules-cache nil))
 
 (defun cpan:get-modules-from-string (str)
+  (message "getting modules ...")
   (with-temp-buffer
     (insert str)
     (delete-region (point-min)
